@@ -1,3 +1,3 @@
 # avalanche-lending-dapp
 
-comming soon ...
+coming soon ..
