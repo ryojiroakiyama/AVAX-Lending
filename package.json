@@ -1,0 +1,20 @@
+{
+  "name": "avalanche-lending",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd packages/contract && npx hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "packages/client",
+    "packages/contract"
+  ],
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "hardhat": "^2.12.0"
+  }
+}
