@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Loan.sol";
 
-contract LoanRequest {
-    address payable public borrower = payable(msg.sender);
+contract Lending {
+    address payable public borrower;
     IERC20 public token;
     uint256 public collateralAmount;
     uint256 public loanAmount;
@@ -24,6 +24,7 @@ contract LoanRequest {
         uint256 _payoffAmount,
         uint256 _loanDuration
     ) {
+        borrower = payable(msg.sender);
         token = _token;
         collateralAmount = _collateralAmount;
         loanAmount = _loanAmount;

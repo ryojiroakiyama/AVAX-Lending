@@ -19,8 +19,8 @@ describe("Lending", function () {
     const payOffAmount = ethers.utils.parseEther("60"); // ether
     const loanDuration = 1;
 
-    const LoanRequest = await ethers.getContractFactory("LoanRequest");
-    const loanRequest = await LoanRequest.connect(borrower).deploy(
+    const Lending = await ethers.getContractFactory("Lending");
+    const lending = await Lending.connect(borrower).deploy(
       collateralAddress,
       collateralAmount,
       loanAmount,
@@ -29,7 +29,7 @@ describe("Lending", function () {
     );
 
     return {
-      loanRequest,
+      lending,
       owner,
       borrower,
       lender,
@@ -41,44 +41,46 @@ describe("Lending", function () {
 
   describe("basic", function () {
     it("lend", async function () {
-      const { loanRequest, borrower, lender, collateralToken } =
-        await loadFixture(deployContract);
+      const { lending, borrower, lender, collateralToken } = await loadFixture(
+        deployContract
+      );
 
-      const collateralAmount = await loanRequest.collateralAmount();
-      const loanAmount = await loanRequest.loanAmount();
+      const collateralAmount = await lending.collateralAmount();
+      const loanAmount = await lending.loanAmount();
 
       await collateralToken
         .connect(borrower)
-        .approve(loanRequest.address, collateralAmount);
+        .approve(lending.address, collateralAmount);
 
       expect(
-        await loanRequest.connect(lender).lendEther({ value: loanAmount })
+        await lending.connect(lender).lendEther({ value: loanAmount })
       ).to.changeEtherBalance(borrower, loanAmount);
     });
 
     it("payLoan", async function () {
-      const { loanRequest, borrower, lender, collateralToken } =
-        await loadFixture(deployContract);
+      const { lending, borrower, lender, collateralToken } = await loadFixture(
+        deployContract
+      );
 
-      const collateralAmount = await loanRequest.collateralAmount();
-      const loanAmount = await loanRequest.loanAmount();
+      const collateralAmount = await lending.collateralAmount();
+      const loanAmount = await lending.loanAmount();
 
       await collateralToken
         .connect(borrower)
-        .approve(loanRequest.address, collateralAmount);
+        .approve(lending.address, collateralAmount);
 
       expect(
-        await loanRequest.connect(lender).lendEther({ value: loanAmount })
+        await lending.connect(lender).lendEther({ value: loanAmount })
       ).to.changeEtherBalance(borrower, loanAmount);
 
       /* ここまで前回と同じ */
 
       // ローンコントラクトの取得
-      const loanContractAddress = await loanRequest.loan();
+      const loanContractAddress = await lending.loan();
       const loan = await ethers.getContractAt("Loan", loanContractAddress);
 
       // 返済額の取得
-      const payoffAmount = await loanRequest.payoffAmount();
+      const payoffAmount = await lending.payoffAmount();
 
       // ローンの返済
       expect(
@@ -91,22 +93,23 @@ describe("Lending", function () {
     });
 
     it("repossess", async function () {
-      const { loanRequest, borrower, lender, collateralToken } =
-        await loadFixture(deployContract);
+      const { lending, borrower, lender, collateralToken } = await loadFixture(
+        deployContract
+      );
 
-      const collateralAmount = await loanRequest.collateralAmount();
-      const loanAmount = await loanRequest.loanAmount();
+      const collateralAmount = await lending.collateralAmount();
+      const loanAmount = await lending.loanAmount();
 
       await collateralToken
         .connect(borrower)
-        .approve(loanRequest.address, collateralAmount);
+        .approve(lending.address, collateralAmount);
 
       expect(
-        await loanRequest.connect(lender).lendEther({ value: loanAmount })
+        await lending.connect(lender).lendEther({ value: loanAmount })
       ).to.changeEtherBalance(borrower, loanAmount);
 
       // ローンコントラクトの取得
-      const loanContractAddress = await loanRequest.loan();
+      const loanContractAddress = await lending.loan();
       const loan = await ethers.getContractAt("Loan", loanContractAddress);
 
       /* ここまで前回と同じ */
