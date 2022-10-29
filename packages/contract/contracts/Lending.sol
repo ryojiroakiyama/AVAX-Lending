@@ -7,7 +7,7 @@ import "./Loan.sol";
 
 contract Lending {
     address payable public borrower;
-    IERC20 public token;
+    IERC20 public collateralToken;
     uint256 public collateralAmount;
     uint256 public loanAmount;
     uint256 public payoffAmount;
@@ -17,19 +17,10 @@ contract Lending {
 
     event LoanRequestAccepted(address loan);
 
-    constructor(
-        IERC20 _token,
-        uint256 _collateralAmount,
-        uint256 _loanAmount,
-        uint256 _payoffAmount,
-        uint256 _loanDuration
-    ) {
-        borrower = payable(msg.sender);
-        token = _token;
-        collateralAmount = _collateralAmount;
-        loanAmount = _loanAmount;
-        payoffAmount = _payoffAmount;
-        loanDuration = _loanDuration;
+    /***  chainlinkを使用  ***/
+    // この辺はネットが繋がる状態でテストしたい, ローカルテストじゃエラーが出る
+
+    constructor() {
         priceFeed = AggregatorV3Interface(
             /**
              * Network: Avalanche
@@ -39,7 +30,6 @@ contract Lending {
         );
     }
 
-    // この辺はネットが繋がる状態でテストしたい
     AggregatorV3Interface internal priceFeed;
     int256 public storedPrice;
 
@@ -62,17 +52,40 @@ contract Lending {
         storedPrice = getLatestPrice();
     }
 
+    /* ********** */
+
+    function requestLoan(
+        IERC20 _collateralToken,
+        uint256 _collateralAmount,
+        uint256 _loanAmount,
+        uint256 _payoffAmount,
+        uint256 _loanDuration
+    ) public payable {
+        borrower = payable(msg.sender);
+        collateralToken = _collateralToken;
+        collateralAmount = _collateralAmount;
+        loanAmount = _loanAmount;
+        payoffAmount = _payoffAmount;
+        loanDuration = _loanDuration;
+    }
+
     function lendEther() public payable {
         require(msg.value == loanAmount);
         loan = new Loan(
             payable(msg.sender),
             payable(borrower),
-            token,
+            collateralToken,
             collateralAmount,
             payoffAmount,
             loanDuration
         );
-        require(token.transferFrom(borrower, address(loan), collateralAmount));
+        require(
+            collateralToken.transferFrom(
+                borrower,
+                address(loan),
+                collateralAmount
+            )
+        );
         borrower.transfer(loanAmount);
         emit LoanRequestAccepted(address(loan));
     }

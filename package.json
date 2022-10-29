@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "comp": "cd packages/contract && npx hardhat compile",
     "test": "cd packages/contract && npx hardhat test"
   },
   "keywords": [],

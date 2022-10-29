@@ -20,13 +20,17 @@ describe("Lending", function () {
     const loanDuration = 1;
 
     const Lending = await ethers.getContractFactory("Lending");
-    const lending = await Lending.connect(borrower).deploy(
-      collateralAddress,
-      collateralAmount,
-      loanAmount,
-      payOffAmount,
-      loanDuration
-    );
+    const lending = await Lending.connect(borrower).deploy();
+
+    await lending
+      .connect(borrower)
+      .requestLoan(
+        collateralAddress,
+        collateralAmount,
+        loanAmount,
+        payOffAmount,
+        loanDuration
+      );
 
     return {
       lending,
