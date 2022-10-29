@@ -54,7 +54,7 @@ contract Lending {
 
     /* ********** */
 
-    function requestLoan(
+    function makeLoanRequest(
         IERC20 _collateralToken,
         uint256 _collateralAmount,
         uint256 _loanAmount,

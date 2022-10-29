@@ -24,7 +24,7 @@ describe("Lending", function () {
 
     await lending
       .connect(borrower)
-      .requestLoan(
+      .makeLoanRequest(
         collateralAddress,
         collateralAmount,
         loanAmount,
