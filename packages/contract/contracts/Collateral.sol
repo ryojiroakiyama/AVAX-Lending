@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Loan.sol";
 
 contract LoanRequest {
@@ -11,6 +12,10 @@ contract LoanRequest {
     uint256 public loanAmount;
     uint256 public payoffAmount;
     uint256 public loanDuration;
+
+    Loan public loan;
+
+    event LoanRequestAccepted(address loan);
 
     constructor(
         IERC20 _token,
@@ -24,11 +29,37 @@ contract LoanRequest {
         loanAmount = _loanAmount;
         payoffAmount = _payoffAmount;
         loanDuration = _loanDuration;
+        priceFeed = AggregatorV3Interface(
+            /**
+             * Network: Avalanche
+             * Aggregator: AVAX/USD
+             */
+            0x0A77230d17318075983913bC2145DB16C7366156
+        );
     }
 
-    Loan public loan;
+    // この辺はネットが繋がる状態でテストしたい
+    AggregatorV3Interface internal priceFeed;
+    int256 public storedPrice;
 
-    event LoanRequestAccepted(address loan);
+    /**
+     * Returns the latest price
+     */
+    function getLatestPrice() public view returns (int256) {
+        (
+            ,
+            /*uint80 roundID*/
+            int256 price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
+            ,
+            ,
+
+        ) = priceFeed.latestRoundData();
+        return price;
+    }
+
+    function storeLatestPrice() external {
+        storedPrice = getLatestPrice();
+    }
 
     function lendEther() public payable {
         require(msg.value == loanAmount);
