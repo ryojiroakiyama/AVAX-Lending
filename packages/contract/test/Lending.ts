@@ -1,5 +1,4 @@
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
 import { expect } from "chai";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 
@@ -7,26 +6,38 @@ describe("Lending", function () {
   async function deployContract() {
     const [owner, borrower, lender] = await ethers.getSigners();
 
+    /** トークンの用意 */
     const amountForOther = ethers.utils.parseEther("5000");
-    const CRTL = await ethers.getContractFactory("CollateralToken");
-    const crtl = await CRTL.deploy();
-    await crtl.faucet(borrower.address, amountForOther);
-    await crtl.faucet(lender.address, amountForOther);
+    // DAIの用意
+    const Dai = await ethers.getContractFactory("Dai");
+    const dai = await Dai.deploy();
+    await dai.faucet(borrower.address, amountForOther);
+    await dai.faucet(lender.address, amountForOther);
+    // AVAXの用意
+    const Avax = await ethers.getContractFactory("Avax");
+    const avax = await Avax.deploy();
+    await avax.faucet(borrower.address, amountForOther);
+    await avax.faucet(lender.address, amountForOther);
 
-    const collateralAddress = crtl.address;
+    // 各定数定義
+    const collateralAddress = dai.address;
     const collateralAmount = ethers.utils.parseEther("500"); // 担保トークン
-    const loanAmount = ethers.utils.parseEther("50"); // ether
-    const payOffAmount = ethers.utils.parseEther("60"); // ether
-    const loanDuration = 1;
+    const loanAddress = avax.address;
+    const loanAmount = ethers.utils.parseEther("50"); // ローントークン
+    const payOffAmount = ethers.utils.parseEther("60");
+    const loanDuration = 100;
 
+    // deploy Lending
     const Lending = await ethers.getContractFactory("Lending");
-    const lending = await Lending.connect(borrower).deploy();
+    const lending = await Lending.deploy();
 
+    // makeLoanRequest
     await lending
       .connect(borrower)
       .makeLoanRequest(
         collateralAddress,
         collateralAmount,
+        loanAddress,
         loanAmount,
         payOffAmount,
         loanDuration
@@ -34,62 +45,68 @@ describe("Lending", function () {
 
     return {
       lending,
-      owner,
       borrower,
       lender,
-      collateralToken: crtl,
-      collateralAmount,
-      loanAmount,
+      collateralToken: dai,
+      loanToken: avax,
     };
   }
 
   describe("basic", function () {
     it("lend", async function () {
-      const { lending, borrower, lender, collateralToken } = await loadFixture(
-        deployContract
-      );
+      const { lending, borrower, lender, collateralToken, loanToken } =
+        await loadFixture(deployContract);
 
+      // 担保となるトークンの移動準備
       const collateralAmount = await lending.collateralAmount();
-      const loanAmount = await lending.loanAmount();
-
       await collateralToken
         .connect(borrower)
         .approve(lending.address, collateralAmount);
 
-      expect(
-        await lending.connect(lender).lendEther({ value: loanAmount })
-      ).to.changeEtherBalance(borrower, loanAmount);
+      // ローンとなるトークンの移動準備
+      const loanAmount = await lending.loanAmount();
+      await loanToken.connect(lender).approve(lending.address, loanAmount);
+
+      expect(await lending.connect(lender).lend()).to.changeTokenBalances(
+        loanToken,
+        [lender, borrower],
+        [-loanAmount, loanAmount]
+      );
     });
 
     it("payLoan", async function () {
-      const { lending, borrower, lender, collateralToken } = await loadFixture(
-        deployContract
-      );
+      const { lending, borrower, lender, collateralToken, loanToken } =
+        await loadFixture(deployContract);
 
+      // 担保となるトークンの移動準備
       const collateralAmount = await lending.collateralAmount();
-      const loanAmount = await lending.loanAmount();
-
       await collateralToken
         .connect(borrower)
         .approve(lending.address, collateralAmount);
 
-      expect(
-        await lending.connect(lender).lendEther({ value: loanAmount })
-      ).to.changeEtherBalance(borrower, loanAmount);
+      // ローンとなるトークンの移動準備
+      const loanAmount = await lending.loanAmount();
+      await loanToken.connect(lender).approve(lending.address, loanAmount);
 
-      /* ここまで前回と同じ */
+      expect(await lending.connect(lender).lend()).to.changeTokenBalances(
+        loanToken,
+        [lender, borrower],
+        [-loanAmount, loanAmount]
+      );
+
+      /* ここまでlendと同じ */
 
       // ローンコントラクトの取得
       const loanContractAddress = await lending.loan();
       const loan = await ethers.getContractAt("Loan", loanContractAddress);
 
-      // 返済額の取得
-      const payoffAmount = await lending.payoffAmount();
+      // 返済するトークンの移動準備
+      const payoffAmount = await loan.payoffAmount();
+      await loanToken.connect(borrower).approve(loan.address, payoffAmount);
 
       // ローンの返済
-      expect(
-        await loan.connect(borrower).payLoan({ value: payoffAmount })
-      ).to.changeEtherBalances(
+      expect(await loan.connect(borrower).payLoan()).to.changeTokenBalances(
+        loanToken,
         [borrower, lender],
         [-payoffAmount, payoffAmount]
       );
@@ -97,33 +114,37 @@ describe("Lending", function () {
     });
 
     it("repossess", async function () {
-      const { lending, borrower, lender, collateralToken } = await loadFixture(
-        deployContract
-      );
+      const { lending, borrower, lender, collateralToken, loanToken } =
+        await loadFixture(deployContract);
 
+      // 担保となるトークンの移動準備
       const collateralAmount = await lending.collateralAmount();
-      const loanAmount = await lending.loanAmount();
-
       await collateralToken
         .connect(borrower)
         .approve(lending.address, collateralAmount);
 
-      expect(
-        await lending.connect(lender).lendEther({ value: loanAmount })
-      ).to.changeEtherBalance(borrower, loanAmount);
+      // ローンとなるトークンの移動準備
+      const loanAmount = await lending.loanAmount();
+      await loanToken.connect(lender).approve(lending.address, loanAmount);
+
+      expect(await lending.connect(lender).lend()).to.changeTokenBalances(
+        loanToken,
+        [lender, borrower],
+        [-loanAmount, loanAmount]
+      );
+
+      /* ここまでlendと同じ */
 
       // ローンコントラクトの取得
       const loanContractAddress = await lending.loan();
       const loan = await ethers.getContractAt("Loan", loanContractAddress);
 
-      /* ここまで前回と同じ */
-
       // 返済期限を過ぎた期間の時刻取得
       const dueDate = await loan.dueDate();
-      // 時間をその時間まで遅らせる
+      // 時間をその時間より1遅らせる
       await time.increaseTo(dueDate.add(1));
 
-      // ローンの返済
+      // 担保の没収
       expect(await loan.connect(lender).repossess()).to.changeTokenBalances(
         collateralToken,
         [loan, lender],

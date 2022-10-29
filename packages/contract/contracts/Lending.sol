@@ -9,6 +9,7 @@ contract Lending {
     address payable public borrower;
     IERC20 public collateralToken;
     uint256 public collateralAmount;
+    IERC20 public loanToken;
     uint256 public loanAmount;
     uint256 public payoffAmount;
     uint256 public loanDuration;
@@ -57,6 +58,7 @@ contract Lending {
     function makeLoanRequest(
         IERC20 _collateralToken,
         uint256 _collateralAmount,
+        IERC20 _loanToken,
         uint256 _loanAmount,
         uint256 _payoffAmount,
         uint256 _loanDuration
@@ -64,21 +66,24 @@ contract Lending {
         borrower = payable(msg.sender);
         collateralToken = _collateralToken;
         collateralAmount = _collateralAmount;
+        loanToken = _loanToken;
         loanAmount = _loanAmount;
         payoffAmount = _payoffAmount;
         loanDuration = _loanDuration;
     }
 
-    function lendEther() public payable {
-        require(msg.value == loanAmount);
+    function lend() public payable {
+        require(borrower != address(0), "Missing borrower");
         loan = new Loan(
             payable(msg.sender),
             payable(borrower),
             collateralToken,
             collateralAmount,
+            loanToken,
             payoffAmount,
             loanDuration
         );
+        // collateral: borrower -> loan contract
         require(
             collateralToken.transferFrom(
                 borrower,
@@ -86,7 +91,8 @@ contract Lending {
                 collateralAmount
             )
         );
-        borrower.transfer(loanAmount);
+        // loan: lender -> borrower
+        require(loanToken.transferFrom(msg.sender, borrower, loanAmount));
         emit LoanRequestAccepted(address(loan));
     }
 }
