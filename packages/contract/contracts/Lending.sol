@@ -20,6 +20,7 @@ contract Lending {
 
     /***  chainlinkを使用  ***/
     // この辺はネットが繋がる状態でテストしたい, ローカルテストじゃエラーが出る
+    // これ参考: https://docs.chain.link/docs/data-feeds/price-feeds/addresses/?network=avalanche
 
     constructor() {
         priceFeed = AggregatorV3Interface(
