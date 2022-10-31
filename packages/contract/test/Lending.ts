@@ -21,15 +21,13 @@ describe("Lending", function () {
 
     // 各定数定義
     const collateralAddress = fMatic.address;
-    const collateralAmount = ethers.utils.parseEther("500"); // 担保トークン
+    const collateralAmount = ethers.utils.parseEther("1000"); // 担保トークン
     const loanAddress = fAvax.address;
-    const loanAmount = ethers.utils.parseEther("50"); // ローントークン
-    const payOffAmount = ethers.utils.parseEther("60");
-    const loanDuration = 100;
+    const loanAmount = ethers.utils.parseEther("1"); // ローントークン
 
     // deploy Lending
     const Lending = await ethers.getContractFactory("Lending");
-    const lending = await Lending.deploy();
+    const lending = await Lending.deploy(fMatic.address, fAvax.address);
 
     // makeLoanRequest
     await lending
@@ -38,9 +36,7 @@ describe("Lending", function () {
         collateralAddress,
         collateralAmount,
         loanAddress,
-        loanAmount,
-        payOffAmount,
-        loanDuration
+        loanAmount
       );
 
     return {
@@ -72,9 +68,6 @@ describe("Lending", function () {
         [lender, borrower],
         [-loanAmount, loanAmount]
       );
-      await lending.storeLatestPrice();
-      console.log("===>", await lending.avaxStoredPrice());
-      console.log("===>", await lending.maticStoredPrice());
     });
 
     it("payLoan", async function () {

@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Loan.sol";
+import "hardhat/console.sol";
 
 contract Lending {
     address payable public borrower;
@@ -11,80 +12,60 @@ contract Lending {
     uint256 public collateralAmount;
     IERC20 public loanToken;
     uint256 public loanAmount;
-    uint256 public payoffAmount;
-    uint256 public loanDuration;
+
+    uint256 public constant INTEREST_RATES = 20;
+    uint256 public constant LOAN_DURATION = 7 days;
 
     Loan public loan;
 
     event LoanRequestAccepted(address loan);
 
-    /***  chainlinkを使用  ***/
-    // この辺はネットが繋がる状態でテストしたい, ローカルテストじゃエラーが出る
-    // これ参考: https://docs.chain.link/docs/data-feeds/price-feeds/addresses/?network=avalanche
+    mapping(address => address) tokenToAggregator;
 
-    constructor() {
-        avaxPriceFeed = AggregatorV3Interface(
-            /**
-             * Network: Avalanche Testnet
-             * Aggregator: AVAX/USD
-             */
-            0x5498BB86BC934c8D34FDA08E81D444153d0D06aD
-        );
-        maticPriceFeed = AggregatorV3Interface(
-            /**
-             * Network: Avalanche Testnet
-             * Aggregator: MATIC/USD
-             */
-            0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0
-        );
+    constructor(address matic, address avax) {
+        /**
+         * Network: Avalanche Testnet
+         * Aggregator: MATIC/USD
+         */
+        tokenToAggregator[matic] = 0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0;
+
+        /**
+         * Network: Avalanche Testnet
+         * Aggregator: AVAX/USD
+         */
+        tokenToAggregator[avax] = 0x5498BB86BC934c8D34FDA08E81D444153d0D06aD;
     }
 
-    AggregatorV3Interface internal avaxPriceFeed;
-    AggregatorV3Interface internal maticPriceFeed;
-    int256 public avaxStoredPrice;
-    int256 public maticStoredPrice;
-
-    /**
-     * Returns the latest price
-     */
-    function getLatestPrice(AggregatorV3Interface feed)
-        public
-        view
-        returns (int256)
-    {
-        (
-            ,
-            /*uint80 roundID*/
-            int256 price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
-            ,
-            ,
-
-        ) = feed.latestRoundData();
+    // トークンの最新対USD価格を取得する
+    function getLatestPrice(address token) public view returns (int256) {
+        address aggregator = tokenToAggregator[token];
+        (, int256 price, , , ) = AggregatorV3Interface(aggregator)
+            .latestRoundData();
         return price;
     }
-
-    function storeLatestPrice() external {
-        avaxStoredPrice = getLatestPrice(avaxPriceFeed);
-        maticStoredPrice = getLatestPrice(maticPriceFeed);
-    }
-
-    /* ********** */
 
     function makeLoanRequest(
         IERC20 _collateralToken,
         uint256 _collateralAmount,
         IERC20 _loanToken,
-        uint256 _loanAmount,
-        uint256 _payoffAmount,
-        uint256 _loanDuration
+        uint256 _loanAmount
     ) public payable {
+        uint256 collateralValue = uint256(
+            getLatestPrice(address(_collateralToken))
+        ) * _collateralAmount;
+
+        uint256 loanValue = uint256(getLatestPrice(address(_loanToken))) *
+            _loanAmount;
+
+        console.log(collateralValue, ": collateral value");
+        console.log(loanValue, ": loan value");
+        require(collateralValue > loanValue, "Loan exceeds collateral.");
+
         borrower = payable(msg.sender);
         collateralToken = _collateralToken;
         collateralAmount = _collateralAmount;
         loanToken = _loanToken;
         loanAmount = _loanAmount;
-        payoffAmount = _payoffAmount;
-        loanDuration = _loanDuration;
     }
 
     function lend() public payable {
@@ -95,8 +76,8 @@ contract Lending {
             collateralToken,
             collateralAmount,
             loanToken,
-            payoffAmount,
-            loanDuration
+            (loanAmount * INTEREST_RATES) / 100,
+            LOAN_DURATION
         );
         // collateral: borrower -> loan contract
         require(
