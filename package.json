@@ -4,8 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "cd packages/client && npm run dev",
+    "cp": "npm run cp:artifacts && npm run cp:types",
+    "cp:artifacts": "cp packages/contract/artifacts/contracts/Lending.sol/Lending.json packages/contract/artifacts/contracts/Loan.sol/Loan.json packages/contract/artifacts/contracts/ERC20Tokens.sol/Avax.json packages/contract/artifacts/contracts/ERC20Tokens.sol/Dai.json packages/client/artifacts",
+    "cp:types": "cp packages/contract/typechain-types/contracts/Lending.ts packages/contract/typechain-types/contracts/Loan.ts packages/contract/typechain-types/contracts/ERC20Tokens.sol/Avax.ts packages/contract/typechain-types/contracts/ERC20Tokens.sol/Dai.ts packages/client/types",
     "comp": "cd packages/contract && npx hardhat compile",
-    "test": "cd packages/contract && npx hardhat test"
+    "test": "cd packages/contract && npx hardhat test",
+    "deploy": "cd packages/contract && npx hardhat run scripts/deploy.ts --network fuji"
   },
   "keywords": [],
   "author": "",
