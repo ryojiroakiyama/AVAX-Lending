@@ -72,6 +72,8 @@ describe("Lending", function () {
         [lender, borrower],
         [-loanAmount, loanAmount]
       );
+      await lending.storeLatestPrice();
+      console.log("===>", await lending.storedPrice());
     });
 
     it("payLoan", async function () {

@@ -25,10 +25,10 @@ contract Lending {
     constructor() {
         priceFeed = AggregatorV3Interface(
             /**
-             * Network: Avalanche
+             * Network: Avalanche Testnet
              * Aggregator: AVAX/USD
              */
-            0x0A77230d17318075983913bC2145DB16C7366156
+            0x5498BB86BC934c8D34FDA08E81D444153d0D06aD
         );
     }
 

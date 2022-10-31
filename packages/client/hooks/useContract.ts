@@ -8,9 +8,9 @@ import { Avax as AvaxContractType } from "../types/Avax";
 import { Lending as LendingContractType } from "../types/Lending";
 import { getEthereum } from "../utils/ethereum";
 
-export const DaiAddress = "0x6Fbb5fd3f80775DB26195264638c0Cc7fdfB1eE5";
-export const AvaxAddress = "0xa5D480334760fa4cC5466c8375E15a0AdaFB11b5";
-export const LendingAddress = "0x7c8082A867958F84095b6BAe219492e788Fb2738";
+export const DaiAddress = "0xB962Ae94d9416f758938C5F58d11a61e019813B3";
+export const AvaxAddress = "0x22016aEC5053294962D7Bb5aA2f25699c28c6D7D";
+export const LendingAddress = "0x34863E2c73F6CdA40e7fDFC49fdFb55e7f61A93F";
 
 export type TokenType = {
   symbol: string;

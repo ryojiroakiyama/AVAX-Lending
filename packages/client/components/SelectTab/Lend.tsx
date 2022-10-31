@@ -23,21 +23,20 @@ export default function Lend({
 }: Props) {
   const [amountOfToken0, setAmountOfToken0] = useState("");
   const [amountOfToken1, setAmountOfToken1] = useState("");
-  const [activePool, setActivePool] = useState(true);
+  const [price, setPrice] = useState(0);
 
   useEffect(() => {
-    checkLiquidity();
+    // getPrice();
   }, [lending]);
 
-  const checkLiquidity = async () => {
+  const getPrice = async () => {
     if (!lending) return;
     try {
-      // const totalShare = await lending.contract.totalShare();
-      // if (totalShare.eq(BigNumber.from(0))) {
-      //   setActivePool(false);
-      // } else {
-      //   setActivePool(true);
-      // }
+      const txn = await lending.contract.storeLatestPrice();
+      txn.wait();
+      const price = await lending.contract.storedPrice();
+      setPrice(parseInt(price.toString()) / 100000000);
+      alert("success");
     } catch (error) {
       alert(error);
     }
@@ -49,7 +48,7 @@ export default function Lend({
     setPairTokenAmount: (amount: string) => void
   ) => {
     if (!lending || !token0 || !token1) return;
-    if (!activePool) return;
+    if (!price) return;
     if (!validAmount(amount)) return;
     try {
       // const amountInWei = ethers.utils.parseEther(amount);
@@ -110,7 +109,7 @@ export default function Lend({
       // await txn.wait();
       setAmountOfToken0("");
       setAmountOfToken1("");
-      checkLiquidity(); // プールの状態を確認
+      getPrice(); // プールの状態を確認
       updateDetails(); // ユーザとammの情報を更新
       alert("Success");
     } catch (error) {
@@ -149,16 +148,12 @@ export default function Lend({
           )
         }
       />
-      {!activePool && (
-        <div className={styles.error}>
-          Message: Empty pool. Set the initial conversion rate.
-        </div>
-      )}
       <div className={styles.bottomDiv}>
-        <div className={styles.btn} onClick={() => onClickProvide()}>
-          Lend
+        <div className={styles.btn} onClick={() => getPrice()}>
+          get price
         </div>
       </div>
+      <div>price = {price}</div>
     </div>
   );
 }

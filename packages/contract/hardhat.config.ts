@@ -11,7 +11,13 @@ if (process.env.TEST_ACCOUNT_PRIVATE_KEY === undefined) {
 
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
+  defaultNetwork: "hardhat",
   networks: {
+    hardhat: {
+      forking: {
+        url: "https://api.avax-test.network/ext/bc/C/rpc",
+      },
+    },
     fuji: {
       url: "https://api.avax-test.network/ext/bc/C/rpc",
       chainId: 43113,
