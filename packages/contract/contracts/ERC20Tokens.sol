@@ -3,8 +3,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract Dai is ERC20 {
-    constructor() ERC20("Dai Token", "DAI") {
+contract FMatic is ERC20 {
+    constructor() ERC20("Fmatic Token", "FMATIC") {
         _mint(msg.sender, 10000 ether);
     }
 
@@ -13,8 +13,8 @@ contract Dai is ERC20 {
     }
 }
 
-contract Avax is ERC20 {
-    constructor() ERC20("Avax Token", "AVAX") {
+contract FAvax is ERC20 {
+    constructor() ERC20("FAvax Token", "FAVAX") {
         _mint(msg.sender, 10000 ether);
     }
 

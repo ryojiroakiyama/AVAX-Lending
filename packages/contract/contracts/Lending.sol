@@ -23,22 +23,35 @@ contract Lending {
     // これ参考: https://docs.chain.link/docs/data-feeds/price-feeds/addresses/?network=avalanche
 
     constructor() {
-        priceFeed = AggregatorV3Interface(
+        avaxPriceFeed = AggregatorV3Interface(
             /**
              * Network: Avalanche Testnet
              * Aggregator: AVAX/USD
              */
             0x5498BB86BC934c8D34FDA08E81D444153d0D06aD
         );
+        maticPriceFeed = AggregatorV3Interface(
+            /**
+             * Network: Avalanche Testnet
+             * Aggregator: MATIC/USD
+             */
+            0xB0924e98CAFC880ed81F6A4cA63FD61006D1f8A0
+        );
     }
 
-    AggregatorV3Interface internal priceFeed;
-    int256 public storedPrice;
+    AggregatorV3Interface internal avaxPriceFeed;
+    AggregatorV3Interface internal maticPriceFeed;
+    int256 public avaxStoredPrice;
+    int256 public maticStoredPrice;
 
     /**
      * Returns the latest price
      */
-    function getLatestPrice() public view returns (int256) {
+    function getLatestPrice(AggregatorV3Interface feed)
+        public
+        view
+        returns (int256)
+    {
         (
             ,
             /*uint80 roundID*/
@@ -46,12 +59,13 @@ contract Lending {
             ,
             ,
 
-        ) = priceFeed.latestRoundData();
+        ) = feed.latestRoundData();
         return price;
     }
 
     function storeLatestPrice() external {
-        storedPrice = getLatestPrice();
+        avaxStoredPrice = getLatestPrice(avaxPriceFeed);
+        maticStoredPrice = getLatestPrice(maticPriceFeed);
     }
 
     /* ********** */

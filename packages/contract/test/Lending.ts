@@ -8,21 +8,21 @@ describe("Lending", function () {
 
     /** トークンの用意 */
     const amountForOther = ethers.utils.parseEther("5000");
-    // DAIの用意
-    const Dai = await ethers.getContractFactory("Dai");
-    const dai = await Dai.deploy();
-    await dai.faucet(borrower.address, amountForOther);
-    await dai.faucet(lender.address, amountForOther);
-    // AVAXの用意
-    const Avax = await ethers.getContractFactory("Avax");
-    const avax = await Avax.deploy();
-    await avax.faucet(borrower.address, amountForOther);
-    await avax.faucet(lender.address, amountForOther);
+    // FMATICの用意
+    const FMatic = await ethers.getContractFactory("FMatic");
+    const fMatic = await FMatic.deploy();
+    await fMatic.faucet(borrower.address, amountForOther);
+    await fMatic.faucet(lender.address, amountForOther);
+    // FAVAXの用意
+    const FAvax = await ethers.getContractFactory("FAvax");
+    const fAvax = await FAvax.deploy();
+    await fAvax.faucet(borrower.address, amountForOther);
+    await fAvax.faucet(lender.address, amountForOther);
 
     // 各定数定義
-    const collateralAddress = dai.address;
+    const collateralAddress = fMatic.address;
     const collateralAmount = ethers.utils.parseEther("500"); // 担保トークン
-    const loanAddress = avax.address;
+    const loanAddress = fAvax.address;
     const loanAmount = ethers.utils.parseEther("50"); // ローントークン
     const payOffAmount = ethers.utils.parseEther("60");
     const loanDuration = 100;
@@ -47,8 +47,8 @@ describe("Lending", function () {
       lending,
       borrower,
       lender,
-      collateralToken: dai,
-      loanToken: avax,
+      collateralToken: fMatic,
+      loanToken: fAvax,
     };
   }
 
@@ -73,7 +73,8 @@ describe("Lending", function () {
         [-loanAmount, loanAmount]
       );
       await lending.storeLatestPrice();
-      console.log("===>", await lending.storedPrice());
+      console.log("===>", await lending.avaxStoredPrice());
+      console.log("===>", await lending.maticStoredPrice());
     });
 
     it("payLoan", async function () {
