@@ -14,7 +14,7 @@ type Props = {
   updateDetails: () => void;
 };
 
-export default function Provide({
+export default function Lend({
   token0,
   token1,
   lending,
@@ -156,7 +156,7 @@ export default function Provide({
       )}
       <div className={styles.bottomDiv}>
         <div className={styles.btn} onClick={() => onClickProvide()}>
-          Provide
+          Lend
         </div>
       </div>
     </div>

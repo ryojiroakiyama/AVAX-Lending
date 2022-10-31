@@ -14,7 +14,7 @@ type Props = {
   updateDetails: () => void;
 };
 
-export default function Swap({
+export default function Borrow({
   token0,
   token1,
   lending,
