@@ -4,17 +4,17 @@ async function deploy() {
   // コントラクトをデプロイするアカウントのアドレスを取得します。
   const [deployer] = await ethers.getSigners();
 
-  // USDCトークンのコントラクトをデプロイします。
+  // DAIトークンのコントラクトをデプロイします。
   const Dai = await ethers.getContractFactory("Dai");
   const dai = await Dai.deploy();
   await dai.deployed();
 
-  // JOEトークンのコントラクトをデプロイします。
+  // AVAXトークンのコントラクトをデプロイします。
   const Avax = await ethers.getContractFactory("Avax");
   const avax = await Avax.deploy();
   await avax.deployed();
 
-  // AMMコントラクトをデプロイします。
+  // Lendingコントラクトをデプロイします。
   const Lending = await ethers.getContractFactory("Lending");
   const lending = await Lending.deploy();
   await lending.deployed();
