@@ -10,7 +10,7 @@ const Home: NextPage = () => {
     <div className={styles.pageBody}>
       <div className={styles.navBar}>
         <div className={styles.rightHeader}>
-          <div className={styles.appName}> Miniswap </div>
+          <div className={styles.appName}> Lending </div>
         </div>
         {currentAccount == undefined ? (
           <div className={styles.connectBtn} onClick={connectWallet}>

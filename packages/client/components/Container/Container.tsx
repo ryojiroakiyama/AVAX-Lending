@@ -12,7 +12,11 @@ type Props = {
 export default function Container({ currentAccount }: Props) {
   const [activeTab, setActiveTab] = useState("Borrow");
   const [updateDetailsFlag, setUpdateDetailsFlag] = useState(0);
-  const { dai: token0, avax: token1, lending } = useContract(currentAccount);
+  const {
+    fMatic: token0,
+    fAvax: token1,
+    lending,
+  } = useContract(currentAccount);
 
   const changeTab = (tab: string) => {
     setActiveTab(tab);
