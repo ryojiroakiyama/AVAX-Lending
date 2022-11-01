@@ -70,15 +70,20 @@ contract Lending {
 
     function lend() public payable {
         require(borrower != address(0), "Missing borrower");
+        require(collateralAmount > 0 && loanAmount > 0, "Valid amount");
+
+        uint256 payoffAmount = (loanAmount * (INTEREST_RATES + 100)) / 100;
         loan = new Loan(
             payable(msg.sender),
             payable(borrower),
             collateralToken,
             collateralAmount,
             loanToken,
-            (loanAmount * INTEREST_RATES) / 100,
+            payoffAmount,
             LOAN_DURATION
         );
+        console.log(loanAmount, ": loanAmount");
+        console.log(payoffAmount, ": payoffAmount");
         // collateral: borrower -> loan contract
         require(
             collateralToken.transferFrom(
