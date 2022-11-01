@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { TokenType, LendingType } from "../../hooks/useContract";
 import styles from "./SelectTab.module.css";
-import InputNumberBox from "../InputBox/InputNumberBox";
-import { ethers } from "ethers";
-import { validAmount } from "../../utils/validAmount";
 
 type Props = {
   token0: TokenType | undefined;
@@ -22,6 +19,8 @@ export default function Borrow({
 }: Props) {
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [price, setPrice] = useState<number[]>([]);
+
+  const [test, setTest] = useState(0);
 
   useEffect(() => {
     if (!token0 || !token1) return;
@@ -53,8 +52,26 @@ export default function Borrow({
     }
   }, [tokens, getPrice]);
 
+  const onChangeSelect = async (s: string) => {
+    setTest(parseInt(s));
+  };
+
   return (
     <div className={styles.tabBody}>
+      <label>
+        Pick your favorite flavor:
+        <select
+          onChange={(e) => {
+            onChangeSelect(e.target.value);
+          }}
+        >
+          <option selected value="0">
+            {tokens[0].symbol}
+          </option>
+          <option value="1">{tokens[1].symbol}</option>
+        </select>
+      </label>
+      <div>{test}</div>
       {
         (tokens.length !== 0,
         price.length !== 0 && (
