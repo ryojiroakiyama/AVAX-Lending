@@ -10,7 +10,6 @@ const Home: NextPage = () => {
     <div className={styles.pageBody}>
       <div className={styles.navBar}>
         <div className={styles.rightHeader}>
-          <img src="bird.png" width="40px" height="30px" />
           <div className={styles.appName}> Miniswap </div>
         </div>
         {currentAccount == undefined ? (

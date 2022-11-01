@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import DaiArtifact from "../artifacts/Dai.json";
-import AvaxArtifact from "../artifacts/Avax.json";
+import FMaticArtifact from "../artifacts/FMatic.json";
+import FAvaxArtifact from "../artifacts/FAvax.json";
 import LendingArtifact from "../artifacts/Lending.json";
-import { Dai as DaiContractType } from "../types/Dai";
-import { Avax as AvaxContractType } from "../types/Avax";
+import { FMatic as FMaticContractType } from "../types/FMatic";
+import { FAvax as FAvaxContractType } from "../types/FAvax";
 import { Lending as LendingContractType } from "../types/Lending";
 import { getEthereum } from "../utils/ethereum";
 
-export const DaiAddress = "0xB962Ae94d9416f758938C5F58d11a61e019813B3";
-export const AvaxAddress = "0x22016aEC5053294962D7Bb5aA2f25699c28c6D7D";
-export const LendingAddress = "0x34863E2c73F6CdA40e7fDFC49fdFb55e7f61A93F";
+export const FMaticAddress = "0xe47118D0E279241e0929DaBa51aD77beb9872D06";
+export const FAvaxAddress = "0x08F42B0AfA0E6666B2D1e4009865d352760cB346";
+export const LendingAddress = "0xCEFe35ABEe8673Ecf4BC97a0cE78D9DEC8d6A39d";
 
 export type TokenType = {
   symbol: string;
-  contract: DaiContractType | AvaxContractType;
+  contract: FMaticContractType | FAvaxContractType;
 };
 
 export type LendingType = {
@@ -22,16 +22,16 @@ export type LendingType = {
 };
 
 type ReturnUseContract = {
-  dai: TokenType | undefined;
-  avax: TokenType | undefined;
+  fMatic: TokenType | undefined;
+  fAvax: TokenType | undefined;
   lending: LendingType | undefined;
 };
 
 export const useContract = (
   currentAccount: string | undefined
 ): ReturnUseContract => {
-  const [dai, setDai] = useState<TokenType>();
-  const [avax, setAvax] = useState<TokenType>();
+  const [fMatic, setFMatic] = useState<TokenType>();
+  const [fAvax, setFAvax] = useState<TokenType>();
   const [lending, setLending] = useState<LendingType>();
   const ethereum = getEthereum();
 
@@ -61,19 +61,19 @@ export const useContract = (
     }
   };
 
-  const generateDai = async (contract: DaiContractType) => {
+  const generateFMatic = async (contract: FMaticContractType) => {
     try {
       const symbol = await contract.symbol();
-      setDai({ symbol: symbol, contract: contract } as TokenType);
+      setFMatic({ symbol: symbol, contract: contract } as TokenType);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const generateAvax = async (contract: DaiContractType) => {
+  const generateAvax = async (contract: FAvaxContractType) => {
     try {
       const symbol = await contract.symbol();
-      setAvax({ symbol: symbol, contract: contract } as TokenType);
+      setFAvax({ symbol: symbol, contract: contract } as TokenType);
     } catch (error) {
       console.log(error);
     }
@@ -90,12 +90,20 @@ export const useContract = (
   };
 
   useEffect(() => {
-    getContract(DaiAddress, DaiArtifact.abi, (Contract: ethers.Contract) => {
-      generateDai(Contract as DaiContractType);
-    });
-    getContract(AvaxAddress, AvaxArtifact.abi, (Contract: ethers.Contract) => {
-      generateAvax(Contract as AvaxContractType);
-    });
+    getContract(
+      FMaticAddress,
+      FMaticArtifact.abi,
+      (Contract: ethers.Contract) => {
+        generateFMatic(Contract as FMaticContractType);
+      }
+    );
+    getContract(
+      FAvaxAddress,
+      FAvaxArtifact.abi,
+      (Contract: ethers.Contract) => {
+        generateAvax(Contract as FAvaxContractType);
+      }
+    );
     getContract(
       LendingAddress,
       LendingArtifact.abi,
@@ -106,8 +114,8 @@ export const useContract = (
   }, [ethereum, currentAccount]);
 
   return {
-    dai,
-    avax,
+    fMatic,
+    fAvax,
     lending,
   };
 };

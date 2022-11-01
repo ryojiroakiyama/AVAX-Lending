@@ -8,7 +8,6 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -30,23 +29,23 @@ import type {
 
 export interface LendingInterface extends utils.Interface {
   functions: {
+    "INTEREST_RATES()": FunctionFragment;
+    "LOAN_DURATION()": FunctionFragment;
     "borrower()": FunctionFragment;
     "collateralAmount()": FunctionFragment;
     "collateralToken()": FunctionFragment;
-    "getLatestPrice()": FunctionFragment;
+    "getLatestPrice(address)": FunctionFragment;
     "lend()": FunctionFragment;
     "loan()": FunctionFragment;
     "loanAmount()": FunctionFragment;
-    "loanDuration()": FunctionFragment;
     "loanToken()": FunctionFragment;
-    "makeLoanRequest(address,uint256,address,uint256,uint256,uint256)": FunctionFragment;
-    "payoffAmount()": FunctionFragment;
-    "storeLatestPrice()": FunctionFragment;
-    "storedPrice()": FunctionFragment;
+    "makeLoanRequest(address,uint256,address,uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "INTEREST_RATES"
+      | "LOAN_DURATION"
       | "borrower"
       | "collateralAmount"
       | "collateralToken"
@@ -54,14 +53,18 @@ export interface LendingInterface extends utils.Interface {
       | "lend"
       | "loan"
       | "loanAmount"
-      | "loanDuration"
       | "loanToken"
       | "makeLoanRequest"
-      | "payoffAmount"
-      | "storeLatestPrice"
-      | "storedPrice"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "INTEREST_RATES",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LOAN_DURATION",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "borrower", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "collateralAmount",
@@ -73,16 +76,12 @@ export interface LendingInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getLatestPrice",
-    values?: undefined
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "lend", values?: undefined): string;
   encodeFunctionData(functionFragment: "loan", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "loanAmount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "loanDuration",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "loanToken", values?: undefined): string;
@@ -92,24 +91,18 @@ export interface LendingInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "payoffAmount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "storeLatestPrice",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "storedPrice",
-    values?: undefined
-  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "INTEREST_RATES",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LOAN_DURATION",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "borrower", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "collateralAmount",
@@ -126,25 +119,9 @@ export interface LendingInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "lend", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "loan", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "loanAmount", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "loanDuration",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "loanToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "makeLoanRequest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "payoffAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "storeLatestPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "storedPrice",
     data: BytesLike
   ): Result;
 
@@ -193,13 +170,20 @@ export interface Lending extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    INTEREST_RATES(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    LOAN_DURATION(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     borrower(overrides?: CallOverrides): Promise<[string]>;
 
     collateralAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     collateralToken(overrides?: CallOverrides): Promise<[string]>;
 
-    getLatestPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
+    getLatestPrice(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     lend(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -209,8 +193,6 @@ export interface Lending extends BaseContract {
 
     loanAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    loanDuration(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     loanToken(overrides?: CallOverrides): Promise<[string]>;
 
     makeLoanRequest(
@@ -218,19 +200,13 @@ export interface Lending extends BaseContract {
       _collateralAmount: PromiseOrValue<BigNumberish>,
       _loanToken: PromiseOrValue<string>,
       _loanAmount: PromiseOrValue<BigNumberish>,
-      _payoffAmount: PromiseOrValue<BigNumberish>,
-      _loanDuration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    payoffAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    storeLatestPrice(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    storedPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
+
+  INTEREST_RATES(overrides?: CallOverrides): Promise<BigNumber>;
+
+  LOAN_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
 
   borrower(overrides?: CallOverrides): Promise<string>;
 
@@ -238,7 +214,10 @@ export interface Lending extends BaseContract {
 
   collateralToken(overrides?: CallOverrides): Promise<string>;
 
-  getLatestPrice(overrides?: CallOverrides): Promise<BigNumber>;
+  getLatestPrice(
+    token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   lend(
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -248,8 +227,6 @@ export interface Lending extends BaseContract {
 
   loanAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
-  loanDuration(overrides?: CallOverrides): Promise<BigNumber>;
-
   loanToken(overrides?: CallOverrides): Promise<string>;
 
   makeLoanRequest(
@@ -257,35 +234,30 @@ export interface Lending extends BaseContract {
     _collateralAmount: PromiseOrValue<BigNumberish>,
     _loanToken: PromiseOrValue<string>,
     _loanAmount: PromiseOrValue<BigNumberish>,
-    _payoffAmount: PromiseOrValue<BigNumberish>,
-    _loanDuration: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  payoffAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  storeLatestPrice(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  storedPrice(overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
+    INTEREST_RATES(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LOAN_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
     borrower(overrides?: CallOverrides): Promise<string>;
 
     collateralAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     collateralToken(overrides?: CallOverrides): Promise<string>;
 
-    getLatestPrice(overrides?: CallOverrides): Promise<BigNumber>;
+    getLatestPrice(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     lend(overrides?: CallOverrides): Promise<void>;
 
     loan(overrides?: CallOverrides): Promise<string>;
 
     loanAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    loanDuration(overrides?: CallOverrides): Promise<BigNumber>;
 
     loanToken(overrides?: CallOverrides): Promise<string>;
 
@@ -294,16 +266,8 @@ export interface Lending extends BaseContract {
       _collateralAmount: PromiseOrValue<BigNumberish>,
       _loanToken: PromiseOrValue<string>,
       _loanAmount: PromiseOrValue<BigNumberish>,
-      _payoffAmount: PromiseOrValue<BigNumberish>,
-      _loanDuration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    payoffAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    storeLatestPrice(overrides?: CallOverrides): Promise<void>;
-
-    storedPrice(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -312,13 +276,20 @@ export interface Lending extends BaseContract {
   };
 
   estimateGas: {
+    INTEREST_RATES(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LOAN_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
     borrower(overrides?: CallOverrides): Promise<BigNumber>;
 
     collateralAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     collateralToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getLatestPrice(overrides?: CallOverrides): Promise<BigNumber>;
+    getLatestPrice(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     lend(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -328,8 +299,6 @@ export interface Lending extends BaseContract {
 
     loanAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    loanDuration(overrides?: CallOverrides): Promise<BigNumber>;
-
     loanToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     makeLoanRequest(
@@ -337,28 +306,25 @@ export interface Lending extends BaseContract {
       _collateralAmount: PromiseOrValue<BigNumberish>,
       _loanToken: PromiseOrValue<string>,
       _loanAmount: PromiseOrValue<BigNumberish>,
-      _payoffAmount: PromiseOrValue<BigNumberish>,
-      _loanDuration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    payoffAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    storeLatestPrice(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    storedPrice(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    INTEREST_RATES(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    LOAN_DURATION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     borrower(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     collateralAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     collateralToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getLatestPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getLatestPrice(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     lend(
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -368,8 +334,6 @@ export interface Lending extends BaseContract {
 
     loanAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    loanDuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     loanToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     makeLoanRequest(
@@ -377,17 +341,7 @@ export interface Lending extends BaseContract {
       _collateralAmount: PromiseOrValue<BigNumberish>,
       _loanToken: PromiseOrValue<string>,
       _loanAmount: PromiseOrValue<BigNumberish>,
-      _payoffAmount: PromiseOrValue<BigNumberish>,
-      _loanDuration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    payoffAmount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    storeLatestPrice(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    storedPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -16,7 +16,7 @@ async function deploy() {
 
   // Lendingコントラクトをデプロイします。
   const Lending = await ethers.getContractFactory("Lending");
-  const lending = await Lending.deploy();
+  const lending = await Lending.deploy(fMatic.address, fAvax.address);
   await lending.deployed();
 
   console.log("fMatic address:", fMatic.address);
